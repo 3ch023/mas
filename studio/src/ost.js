@@ -1,9 +1,11 @@
 import { html } from 'lit';
+import { EVENT_SELECTED_OFFER } from './constants.js';
 
 let ostRoot;
-let currentRte;
+let target; // rte (editing card) or content-navigation (creating new card)
 let currentVariant;
 let clickedOffer;
+let selectOffer;
 
 const ctaTexts = {
     'buy-now': 'Buy now',
@@ -115,8 +117,17 @@ export function onSelect(offerSelectorId, type, offer, options, promoOverride) {
     console.log(`Use Link: ${link.outerHTML}`);
     if (clickedOffer) {
         clickedOffer.outerHTML = link.outerHTML;
+    } else if (selectOffer) {
+        target.dispatchEvent(
+            new CustomEvent(EVENT_SELECTED_OFFER, {
+                detail: { osi: offerSelectorId },
+                bubbles: true,
+                composed: true,
+            }),
+        );
+        alert(offerSelectorId);
     } else {
-        currentRte.appendContent(link.outerHTML);
+        target.appendContent(link.outerHTML);
     }
     closeOstDialog();
 }
@@ -141,10 +152,12 @@ export function getOffferSelectorTool() {
     `;
 }
 
-export function openOfferSelectorTool(e, rte, variant) {
-    currentRte = rte;
+// targetEl is either rte (edit context) or content-navigation (create new card context)
+export function openOfferSelectorTool(e, targetEl, variant) {
+    target = targetEl;
     currentVariant = variant;
     clickedOffer = e.detail?.clickedElement;
+    selectOffer = e.detail?.selectOffer;
     let searchOfferSelectorId;
     if (!ostRoot || clickedOffer) {
         ostRoot = document.getElementById('ost');

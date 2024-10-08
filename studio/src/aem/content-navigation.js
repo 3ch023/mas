@@ -140,6 +140,16 @@ class ContentNavigation extends LitElement {
         this.notify();
     }
 
+    createNew() {
+        this.dispatchEvent(
+            new CustomEvent('create-fragment', {
+                detail: { selectOffer: true },
+                bubbles: true,
+                composed: true,
+            }),
+        );
+    }
+
     get selectionCount() {
         return this.source.selectedFragments.length ?? 0;
     }
@@ -207,7 +217,11 @@ class ContentNavigation extends LitElement {
         });
         return html`<sp-action-group emphasized>
             <slot name="toolbar-actions"></slot>
-            <sp-action-button emphasized style=${inNoSelectionStyle}>
+            <sp-action-button
+                emphasized
+                style=${inNoSelectionStyle}
+                @click=${this.createNew}
+            >
                 <sp-icon-new-item slot="icon"></sp-icon-new-item>
                 New
             </sp-action-button>

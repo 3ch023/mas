@@ -7,6 +7,7 @@ import {
 import './editors/merch-card-editor.js';
 import './editors/variant-picker.js';
 import './rte-editor.js';
+import { EVENT_CREATE_FRAGMENT, EVENT_SELECTED_OFFER } from './constants.js';
 
 import { getOffferSelectorTool, openOfferSelectorTool } from './ost.js';
 
@@ -59,6 +60,18 @@ class MasStudio extends LitElement {
         this.addEventListener('select-fragment', (e) =>
             this.handleOpenFragment(e),
         );
+
+        this.addEventListener(EVENT_CREATE_FRAGMENT, (e) =>
+            this.openOfferSelectorTool(e),
+        );
+
+        this.addEventListener(EVENT_SELECTED_OFFER, async (e) => {
+            const osi = e.detail.osi;
+            await this.source?.setFragment({});
+            this.requestUpdate();
+            // e.detail = { x: 0, y: 0, fragment: {} };
+            // this.handleOpenFragment(e);
+        });
     }
 
     disconnectedCallback() {
@@ -365,6 +378,11 @@ class MasStudio extends LitElement {
 
     async handleOpenFragment(e) {
         const { x, y, fragment } = e.detail;
+        const {
+            title,
+            fields,
+            model: { id: modelId },
+        } = fragment;
         await this.adjustEditorPosition(x, y);
         await this.editFragment(fragment);
     }
@@ -404,6 +422,16 @@ class MasStudio extends LitElement {
         } catch (e) {
             this.showToast('Fragment could not be cloned', 'negative');
         }
+    }
+
+    async createFragment() {
+        // this.showToast('Creating fragment...');
+        // try {
+        //     await this.source?.copyFragment();
+        //     this.showToast('Fragment cloned', 'positive');
+        // } catch (e) {
+        //     this.showToast('Fragment could not be cloned', 'negative');
+        // }
     }
 
     async closeFragmentEditor() {
